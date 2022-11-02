@@ -1,10 +1,11 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>{{ page.title }}</title>
-  </head>
-  <body>
-    {{ content }}
-  </body>
-</html>
+layout: archive
+---
+
+{{ content }}
+
+<link rel="icon" type="image/x-icon" href="/assests/images/logo.png">
+
+<h3 class="archive__subtitle">{{ site.data.ui-text[site.locale].recent_posts | default: "Recent Posts" }}</h3>
+
+
+{% include paginator.html %}
