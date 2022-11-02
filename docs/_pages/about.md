@@ -8,7 +8,5 @@ layouts_gallery:
     alt: "archive layout example"
 ---
 
-<link rel="icon" type="image/x-icon" href="/assests/images/logo.png">
-
 Developing...
 
