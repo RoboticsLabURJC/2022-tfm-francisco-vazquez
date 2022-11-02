@@ -1,6 +1,6 @@
 ---
-layout: about
-author_profile: true
+permalink: about
+title: "About"
 ---
 
-<h1>{{ "Developing..." | downcase }}</h1>
+Developing...
