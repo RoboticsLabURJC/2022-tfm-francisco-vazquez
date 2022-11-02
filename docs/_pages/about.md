@@ -1,8 +1,11 @@
 ---
-title: "About"
-layout: archive
 permalink: /about/
-author_profile: true
+title: "About"
+excerpt: "Minimal Mistakes is a flexible two-column Jekyll theme."
+layouts_gallery:
+  - url: /assets/images/mm-layout-archive.png
+    image_path: /assets/images/mm-layout-archive.png
+    alt: "archive layout example"
 ---
 
 <link rel="icon" type="image/x-icon" href="/assests/images/logo.png">
