@@ -6,9 +6,6 @@ import numpy as np
 from LineDetector import LineDetector
 import carla
 
-
-
-
 try:
     sys.path.append(
         glob.glob('/home/xfranv8/Documents/CARLA 0.9.13/PythonAPI/carla/dist/carla-*%d.%d-%s.egg' % (  # PREGUNTAR!!
@@ -17,8 +14,6 @@ try:
             'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
 except IndexError:
     pass
-
-
 
 
 def procces_image(data, data_dict):
@@ -48,7 +43,8 @@ world.set_weather(weather)
 bp = blueprint_library.filter("model3")[0]
 
 # transform = carla.Transform(carla.Location(x=230, y=195, z=40), carla.Rotation(yaw=180))
-spawn_point = carla.Transform(carla.Location(x=41.389999, y=275.029999, z=0.500000), carla.Rotation(pitch=0.000000, yaw=89.999954, roll=0.000000))
+spawn_point = carla.Transform(carla.Location(x=41.389999, y=275.029999, z=0.500000),
+                              carla.Rotation(pitch=0.000000, yaw=89.999954, roll=0.000000))
 vehicle: carla.Vehicle = world.spawn_actor(bp, spawn_point)
 
 # vehicle.apply_control(carla.VehicleControl(throttle=0.3, steer=0.0))
@@ -70,7 +66,7 @@ vehicle.apply_control(carla.VehicleControl(throttle=0.4, steer=0))
 # vehicle.set_autopilot(True)
 
 detector = LineDetector()
-cv2.namedWindow("CAR VIEW")        # Create a named window
+cv2.namedWindow("CAR VIEW")  # Create a named window
 cv2.moveWindow("CAR VIEW", 1958, 0)
 while True:
 
@@ -78,7 +74,7 @@ while True:
     imcopy = np.copy(open_cv_image)
     cv2.line(imcopy, (320, 480), (320, 0), (0, 0, 255), 2)
     # cv2.imshow("RGB Camera", open_cv_image)
-    x1, y1, x2, y2= detector.detect_points(open_cv_image)
+    x1, y1, x2, y2 = detector.detect_points(open_cv_image)
 
     # cv2.imshow("Morphological Transforms", image)
     if x1 is not None:
@@ -98,7 +94,7 @@ while True:
     if x2 is not None and x1 is not None:
         pmx = int((x2 + x1) / 2)
         pmy = int((y2 + y1) / 2)
-        steer = (pmx-340) * 0.002
+        steer = (pmx - 340) * 0.002
 
         cv2.line(imcopy, (320, 480), (pmx, pmy), (0, 255, 0), 2)
         vehicle.apply_control(carla.VehicleControl(throttle=0.5, steer=steer))
@@ -112,4 +108,3 @@ cv2.destroyAllWindows()
 
 for actor in actor_list:
     actor.destroy()
-
