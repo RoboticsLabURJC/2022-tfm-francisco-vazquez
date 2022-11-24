@@ -1,5 +1,5 @@
 from CarlaEnv import CarlaEnv
-import carla
+import carla, threading, cv2
 
 
 def main():
@@ -11,15 +11,24 @@ def main():
     environment = CarlaEnv(town, weather)
     blueprint_library: carla.BlueprintLibrary = environment.get_blueprint_library()
 
-    model = blueprint_library.filter("model3")[0]
-    cam = blueprint_library.find("sensor.camera.rgb")
-    colsensor = blueprint_library.find('sensor.other.collision')
-    environment.spawn_vehicle(model, cam, colsensor)
-    environment.step(None)
-    aux = False
-    while not aux:
-        aux = environment.reset()
+    while True:
+        model = blueprint_library.filter("model3")[0]
+        cam = blueprint_library.find("sensor.camera.rgb")
+        colsensor = blueprint_library.find('sensor.other.collision')
+        environment.spawn_vehicle(model, cam, colsensor)
+        environment.show_image()
+        '''collisions = threading.Thread(target=environment.reset)
+        show_image = threading.Thread(target=environment.show_image)
+        collisions.start()
+        show_image.start()
+
+        collisions.join()
+        show_image.join()'''
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    image = cv2.imread("avatar.JPG")
+    cv2.imshow("", image)
+    if cv2.waitKey(0) == ord('q'):
+        aux = False

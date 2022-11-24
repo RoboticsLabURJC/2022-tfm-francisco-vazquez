@@ -1,4 +1,4 @@
-import glob, os, sys, carla, random, time, numpy as np
+import glob, os, sys, carla, random, time, numpy as np, cv2
 
 
 class CarlaEnv:
@@ -14,7 +14,8 @@ class CarlaEnv:
         self._actors = []
         self._data_dict = {}
         self._collision_hist = []
-        self._vehicle: carla.Vehicle
+        self._vehicle = None
+        self._colsensor = None
 
     def step(self, action):
         self._vehicle.apply_control(carla.VehicleControl(throttle=1, steer=0))
@@ -44,16 +45,11 @@ class CarlaEnv:
 
             sensor = self.world.spawn_actor(camera, transform, attach_to=self._vehicle)
             self._actors.append(sensor)
-            camera_data = {"image": np.zeros((480, 640, 4))}
             sensor.listen(lambda data: self._process_image(data))
         if collision_detector is not None:
-            colsensor = self.world.get_blueprint_library().find('sensor.other.collision')
-            self.colsensor = self.world.spawn_actor(collision_detector, transform, attach_to=self._vehicle)
-            self._actors.append(self.colsensor)
-            self.colsensor.listen(lambda event: self._collision_data(event))
-
-    def get_blueprint_library(self):
-        return self.world.get_blueprint_library()
+            self._colsensor = self.world.spawn_actor(collision_detector, transform, attach_to=self._vehicle)
+            self._actors.append(self._colsensor)
+            self._colsensor.listen(lambda event: self._collision_data(event))
 
     def _process_image(self, data):
         """Convert a CARLA raw image to a BGRA numpy array."""
@@ -61,8 +57,21 @@ class CarlaEnv:
             raise ValueError("Argument must be a carla.Image")
         image = np.array(data.raw_data)
         image2 = image.reshape((480, 640, 4))
-        # image3 = image2[:, :, :3]
-        self._data_dict['image'] = image2
+        image3 = image2[:, :, :3]
+        self._data_dict["image"] = image3
 
     def _collision_data(self, event):
         self._collision_hist.append(event)
+
+    def get_blueprint_library(self):
+        return self.world.get_blueprint_library()
+
+    def show_image(self):
+        if len(self._data_dict) > 0:
+            aux = True
+            while aux:
+                cv2.imshow("", self._data_dict["image"])
+                if cv2.waitKey(1) == ord('q'):
+                    aux = False
+        else:
+            print("There is no image to show.")
