@@ -18,21 +18,27 @@ class CarlaEnv:
         self._colsensor = None
 
     def step(self, action):
-        self._vehicle.apply_control(carla.VehicleControl(throttle=1, steer=0))
+        self._vehicle.apply_control(carla.VehicleControl(throttle=0.5, steer=0))
 
-    def reset(self):
-        if len(self._collision_hist) > 0:
-            for actor in self._actors:
-                actor.destroy()
-                self._collision_hist = []
-                return True
-        return False
+    '''def reset(self):
+        while True:
+            if len(self._actors) == 0:
+                break
+            elif len(self._collision_hist) > 0:
+                for actor in self._actors:
+                    actor.destroy()
+                    self._collision_hist = []'''
 
     def spawn_vehicle(self, model: carla.BlueprintLibrary, camera=None, collision_detector=None):
         # spawn_point = carla.Transform(carla.Location(x=41.389999, y=275.029999, z=0.500000),
         # carla.Rotation(pitch=0.000000, yaw=89.999954, roll=0.000000))
 
-        spawn_point = random.choice(self.world.get_map().get_spawn_points())
+        spawn_point = carla.Transform(carla.Location(x=71.965233, y=-10, z=0.300000), carla.Rotation(pitch=0.000000, yaw=-60.0, roll=0.000000))
+        for Location in self.world.get_map().get_spawn_points():
+            print(Location)
+
+        # print(f"Vehicle spawned at {spawn_point}")
+        print(point for point in self.world.get_map().get_spawn_points())
 
         self._vehicle = self.world.spawn_actor(model, spawn_point)
         self._actors.append(self._vehicle)
@@ -61,17 +67,31 @@ class CarlaEnv:
         self._data_dict["image"] = image3
 
     def _collision_data(self, event):
-        self._collision_hist.append(event)
+        # self._collision_hist.append(event)
+        if len(self._actors) > 0:
+            self.destroy_all_actors()
+
+        blueprint_library: carla.BlueprintLibrary = self.get_blueprint_library()
+        model = blueprint_library.filter("model3")[0]
+        cam = blueprint_library.find("sensor.camera.rgb")
+        colsensor = blueprint_library.find('sensor.other.collision')
+        self.spawn_vehicle(model, cam, colsensor)
+        # self.step(carla.VehicleControl(throttle=1, steer=0))
 
     def get_blueprint_library(self):
         return self.world.get_blueprint_library()
 
     def show_image(self):
         if len(self._data_dict) > 0:
-            aux = True
-            while aux:
-                cv2.imshow("", self._data_dict["image"])
-                if cv2.waitKey(1) == ord('q'):
-                    aux = False
+            cv2.imshow("", self._data_dict["image"])
+            if cv2.waitKey(1) == ord('q'):
+                return False
         else:
             print("There is no image to show.")
+
+        return True
+
+    def destroy_all_actors(self):
+        for actor in self._actors:
+            actor.destroy()
+        self._actors = []
