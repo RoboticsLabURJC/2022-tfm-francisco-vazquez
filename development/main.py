@@ -17,7 +17,7 @@ def main():
     colsensor = blueprint_library.find('sensor.other.collision')
     environment.spawn_vehicle(model, cam, colsensor)
     time.sleep(5)
-    # environment.step(carla.VehicleControl(throttle=1, steer=0))
+    environment.step(carla.VehicleControl(throttle=1, steer=0))
 
     aux = True
     while aux:

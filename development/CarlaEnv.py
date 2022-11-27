@@ -1,4 +1,6 @@
-import glob, os, sys, carla, random, time, numpy as np, cv2
+import carla
+import cv2
+import numpy as np
 
 
 class CarlaEnv:
@@ -17,6 +19,12 @@ class CarlaEnv:
         self._vehicle = None
         self._colsensor = None
 
+        '''self._lowthresholds = (59.0, 28.0, 45.0)
+        self._highthresholds = (64.0, 98.0, 75.0)'''
+
+        self._lowthresholds = (245.0, 0.0, 0.0)
+        self._highthresholds = (265.0, 255.0, 255.0)
+
     def step(self, action):
         self._vehicle.apply_control(carla.VehicleControl(throttle=0.5, steer=0))
 
@@ -33,12 +41,15 @@ class CarlaEnv:
         # spawn_point = carla.Transform(carla.Location(x=41.389999, y=275.029999, z=0.500000),
         # carla.Rotation(pitch=0.000000, yaw=89.999954, roll=0.000000))
 
-        spawn_point = carla.Transform(carla.Location(x=71.965233, y=-10, z=0.300000), carla.Rotation(pitch=0.000000, yaw=-60.0, roll=0.000000))
-        for Location in self.world.get_map().get_spawn_points():
-            print(Location)
+        '''spawn_point = carla.Transform(carla.Location(x=71.965233, y=-10, z=0.300000),
+                                      carla.Rotation(pitch=0.000000, yaw=-60.0, roll=0.000000))'''
+
+        spawn_point = carla.Transform(carla.Location(x=71.7, y=-10, z=0.300000),
+                                      carla.Rotation(pitch=0.000000, yaw=-62.5, roll=0.000000))
+        '''for Location in self.world.get_map().get_spawn_points():
+            print(Location)'''
 
         # print(f"Vehicle spawned at {spawn_point}")
-        print(point for point in self.world.get_map().get_spawn_points())
 
         self._vehicle = self.world.spawn_actor(model, spawn_point)
         self._actors.append(self._vehicle)
@@ -76,14 +87,49 @@ class CarlaEnv:
         cam = blueprint_library.find("sensor.camera.rgb")
         colsensor = blueprint_library.find('sensor.other.collision')
         self.spawn_vehicle(model, cam, colsensor)
-        # self.step(carla.VehicleControl(throttle=1, steer=0))
+        self.step(carla.VehicleControl(throttle=1, steer=0))
 
     def get_blueprint_library(self):
         return self.world.get_blueprint_library()
 
     def show_image(self):
         if len(self._data_dict) > 0:
-            cv2.imshow("", self._data_dict["image"])
+            '''edges_canny = cv2.Canny(self._data_dict["image"], threshold1=50, threshold2=120)
+            kernel = np.ones((5, 5), np.uint8)
+            edges_dilated = cv2.dilate(edges_canny, kernel, iterations=3)
+            edges_eroded = cv2.erode(edges_dilated, kernel, iterations=3)'''
+            open_cv_image = np.uint8(self._data_dict["image"])
+            open_cv_image = open_cv_image[240:480, :, :]
+            image_copy = np.copy(open_cv_image)
+
+            hsv_frame = cv2.cvtColor(image_copy, cv2.COLOR_BGR2HSV)
+
+            mask = cv2.inRange(hsv_frame, (0, 0, 0), (62, 255, 255))
+
+            x = 630
+
+            while x > 0:
+                if mask[100][x] == 255:
+                    break
+                x -= 1
+
+            z = x
+            while z > 0:
+                if mask[100][z] != 255:
+                    break
+                z -= 1
+
+            cv2.circle(image_copy, (x, 100), 2, (0, 255, 0), -1)
+            cv2.circle(image_copy, (z, 100), 2, (0, 255, 0), -1)
+
+            # Calc distance from center of the image to center of the lane
+            distance = ((x + z) / 2) - 320
+            print(distance)
+
+            # image = cv2.bitwise_and(hsv_frame, hsv_frame, mask=mask)
+
+            cv2.imshow("mask", mask)
+            cv2.imshow("image", image_copy)
             if cv2.waitKey(1) == ord('q'):
                 return False
         else:
