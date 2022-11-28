@@ -22,8 +22,8 @@ class CarlaEnv:
         '''self._lowthresholds = (59.0, 28.0, 45.0)
         self._highthresholds = (64.0, 98.0, 75.0)'''
 
-        self._lowthresholds = (245.0, 0.0, 0.0)
-        self._highthresholds = (265.0, 255.0, 255.0)
+        self._lowthresholds = (0, 0, 0)
+        self._highthresholds = (62, 255, 255)
 
     def step(self, action):
         self._vehicle.apply_control(carla.VehicleControl(throttle=0.5, steer=0))
@@ -94,48 +94,43 @@ class CarlaEnv:
 
     def show_image(self):
         if len(self._data_dict) > 0:
-            '''edges_canny = cv2.Canny(self._data_dict["image"], threshold1=50, threshold2=120)
-            kernel = np.ones((5, 5), np.uint8)
-            edges_dilated = cv2.dilate(edges_canny, kernel, iterations=3)
-            edges_eroded = cv2.erode(edges_dilated, kernel, iterations=3)'''
-            open_cv_image = np.uint8(self._data_dict["image"])
-            open_cv_image = open_cv_image[240:480, :, :]
-            image_copy = np.copy(open_cv_image)
-
-            hsv_frame = cv2.cvtColor(image_copy, cv2.COLOR_BGR2HSV)
-
-            mask = cv2.inRange(hsv_frame, (0, 0, 0), (62, 255, 255))
-
-            x = 630
-
-            while x > 0:
-                if mask[100][x] == 255:
-                    break
-                x -= 1
-
-            z = x
-            while z > 0:
-                if mask[100][z] != 255:
-                    break
-                z -= 1
-
-            cv2.circle(image_copy, (x, 100), 2, (0, 255, 0), -1)
-            cv2.circle(image_copy, (z, 100), 2, (0, 255, 0), -1)
-
-            # Calc distance from center of the image to center of the lane
-            distance = ((x + z) / 2) - 320
-            print(distance)
-
-            # image = cv2.bitwise_and(hsv_frame, hsv_frame, mask=mask)
-
-            cv2.imshow("mask", mask)
-            cv2.imshow("image", image_copy)
+            cv2.imshow("image", self._data_dict["image"])
             if cv2.waitKey(1) == ord('q'):
                 return False
         else:
             print("There is no image to show.")
 
         return True
+
+    def calc_center(self):
+        open_cv_image = np.uint8(self._data_dict["image"])
+        open_cv_image = open_cv_image[240:480, :, :]
+        image_copy = np.copy(open_cv_image)
+
+        hsv_frame = cv2.cvtColor(image_copy, cv2.COLOR_BGR2HSV)
+
+        mask = cv2.inRange(hsv_frame, self._lowthresholds, self._highthresholds)
+
+        x = 630
+        while x > 0:
+            if mask[100][x] == 255:
+                break
+            x -= 1
+
+        z = x
+        while z > 0:
+            if mask[100][z] != 255:
+                break
+            z -= 1
+
+        cv2.circle(mask, (x, 100), 2, (0, 255, 0), -1)
+        cv2.circle(mask, (z, 100), 2, (0, 255, 0), -1)
+
+        # Calc distance from center of the image to center of the lane
+        distance = ((x + z) / 2) - 320
+        pos = ((x + z) / 2)
+
+        return pos
 
     def destroy_all_actors(self):
         for actor in self._actors:

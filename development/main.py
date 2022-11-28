@@ -1,6 +1,7 @@
 import time
 import carla
 from CarlaEnv import CarlaEnv
+from QLearnAgent import QLearnAgent
 
 
 def main():
@@ -16,20 +17,16 @@ def main():
     cam = blueprint_library.find("sensor.camera.rgb")
     colsensor = blueprint_library.find('sensor.other.collision')
     environment.spawn_vehicle(model, cam, colsensor)
+
+    agent = QLearnAgent(environment._vehicle)
     time.sleep(5)
     environment.step(carla.VehicleControl(throttle=1, steer=0))
 
     aux = True
     while aux:
         aux = environment.show_image()
-
-        '''collisions = threading.Thread(target=environment.reset)
-        show_image = threading.Thread(target=environment.show_image)
-        collisions.start()
-        show_image.start()
-
-        collisions.join()
-        show_image.join()'''
+        pos = environment.calc_center()
+        agent.new_state(pos)
 
     environment.destroy_all_actors()
 
