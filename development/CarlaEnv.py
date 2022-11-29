@@ -25,8 +25,13 @@ class CarlaEnv:
         self._lowthresholds = (0, 0, 0)
         self._highthresholds = (62, 255, 255)
 
-    def step(self, action):
-        self._vehicle.apply_control(carla.VehicleControl(throttle=0.5, steer=0))
+    def control(self, action):
+        if action == 0:
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.6, steer=0))
+        elif action == 1:
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.3, steer=0.3))
+        elif action == -1:
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.3, steer=-0.3))
 
     '''def reset(self):
         while True:
@@ -87,7 +92,7 @@ class CarlaEnv:
         cam = blueprint_library.find("sensor.camera.rgb")
         colsensor = blueprint_library.find('sensor.other.collision')
         self.spawn_vehicle(model, cam, colsensor)
-        self.step(carla.VehicleControl(throttle=1, steer=0))
+        # self.control(carla.VehicleControl(throttle=1, steer=0))
 
     def get_blueprint_library(self):
         return self.world.get_blueprint_library()

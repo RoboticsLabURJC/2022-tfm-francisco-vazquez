@@ -18,15 +18,18 @@ def main():
     colsensor = blueprint_library.find('sensor.other.collision')
     environment.spawn_vehicle(model, cam, colsensor)
 
-    agent = QLearnAgent(environment._vehicle)
+    agent = QLearnAgent(environment)
     time.sleep(5)
-    environment.step(carla.VehicleControl(throttle=1, steer=0))
 
     aux = True
     while aux:
         aux = environment.show_image()
+        action = carla.VehicleControl(throttle=0.6, steer=0)
+        agent.step(0)
         pos = environment.calc_center()
-        agent.new_state(pos)
+        reward = agent.reward(action, pos)
+        print(reward)
+        # agent.new_state(pos)
 
     environment.destroy_all_actors()
 
