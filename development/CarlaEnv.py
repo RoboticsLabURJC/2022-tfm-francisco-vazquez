@@ -15,32 +15,20 @@ class CarlaEnv:
 
         self._actors = []
         self._data_dict = {}
-        self._collision_hist = []
+        self._collision_hist = False
         self._vehicle = None
         self._colsensor = None
 
-        '''self._lowthresholds = (59.0, 28.0, 45.0)
-        self._highthresholds = (64.0, 98.0, 75.0)'''
-
-        self._lowthresholds = (0, 0, 0)
-        self._highthresholds = (62, 255, 255)
+        self._lowthresholds = (15, 0, 0)
+        self._highthresholds = (65, 255, 255)
 
     def control(self, action):
         if action == 0:
-            self._vehicle.apply_control(carla.VehicleControl(throttle=0.6, steer=0))
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.5, steer=0))
         elif action == 1:
-            self._vehicle.apply_control(carla.VehicleControl(throttle=0.3, steer=0.3))
-        elif action == -1:
-            self._vehicle.apply_control(carla.VehicleControl(throttle=0.3, steer=-0.3))
-
-    '''def reset(self):
-        while True:
-            if len(self._actors) == 0:
-                break
-            elif len(self._collision_hist) > 0:
-                for actor in self._actors:
-                    actor.destroy()
-                    self._collision_hist = []'''
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=0.2))
+        elif action == 2:
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=-0.2))
 
     def spawn_vehicle(self, model: carla.BlueprintLibrary, camera=None, collision_detector=None):
         # spawn_point = carla.Transform(carla.Location(x=41.389999, y=275.029999, z=0.500000),
@@ -83,16 +71,19 @@ class CarlaEnv:
         self._data_dict["image"] = image3
 
     def _collision_data(self, event):
-        # self._collision_hist.append(event)
-        if len(self._actors) > 0:
-            self.destroy_all_actors()
+        self._collision_hist = True
+        '''f len(self._actors) > 0:
+            self.destroy_all_actors()'''
 
-        blueprint_library: carla.BlueprintLibrary = self.get_blueprint_library()
+        '''blueprint_library: carla.BlueprintLibrary = self.get_blueprint_library()
         model = blueprint_library.filter("model3")[0]
         cam = blueprint_library.find("sensor.camera.rgb")
         colsensor = blueprint_library.find('sensor.other.collision')
-        self.spawn_vehicle(model, cam, colsensor)
+        self.spawn_vehicle(model, cam, colsensor)'''
         # self.control(carla.VehicleControl(throttle=1, steer=0))
+
+    def getcollision(self):
+        return self._collision_hist
 
     def get_blueprint_library(self):
         return self.world.get_blueprint_library()
@@ -116,7 +107,7 @@ class CarlaEnv:
 
         mask = cv2.inRange(hsv_frame, self._lowthresholds, self._highthresholds)
 
-        x = 630
+        x = 620
         while x > 0:
             if mask[100][x] == 255:
                 break
@@ -128,14 +119,27 @@ class CarlaEnv:
                 break
             z -= 1
 
-        cv2.circle(mask, (x, 100), 2, (0, 255, 0), -1)
-        cv2.circle(mask, (z, 100), 2, (0, 255, 0), -1)
+        '''cv2.circle(mask, (x, 100), 5, (0, 255, 0), -1)
+        cv2.circle(mask, (z, 100), 5, (0, 255, 0), -1)
+        cv2.imshow("mask", mask)
+        cv2.waitKey(1)'''
 
         # Calc distance from center of the image to center of the lane
         distance = ((x + z) / 2) - 320
         pos = ((x + z) / 2)
+        # print(f"Position of the center of the image: {pos}")
 
         return pos
+
+    def reset(self):
+        if len(self._actors) > 0:
+            self.destroy_all_actors()
+
+        blueprint_library: carla.BlueprintLibrary = self.get_blueprint_library()
+        model = blueprint_library.filter("model3")[0]
+        cam = blueprint_library.find("sensor.camera.rgb")
+        colsensor = blueprint_library.find('sensor.other.collision')
+        self.spawn_vehicle(model, cam, colsensor)
 
     def destroy_all_actors(self):
         for actor in self._actors:
