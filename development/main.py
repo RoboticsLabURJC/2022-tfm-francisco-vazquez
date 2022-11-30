@@ -67,7 +67,7 @@ def main():
             state = next_state
             epochs += 1
 
-        print(f"Episode: {i}")
+        print(f"Episode: {i}, elpsilon: {epsilon}")
 
     environment.destroy_all_actors()
 

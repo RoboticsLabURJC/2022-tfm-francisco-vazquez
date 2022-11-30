@@ -39,6 +39,7 @@ class CarlaEnv:
 
         spawn_point = carla.Transform(carla.Location(x=71.7, y=-10, z=0.300000),
                                       carla.Rotation(pitch=0.000000, yaw=-62.5, roll=0.000000))
+
         '''for Location in self.world.get_map().get_spawn_points():
             print(Location)'''
 
@@ -127,6 +128,10 @@ class CarlaEnv:
         # Calc distance from center of the image to center of the lane
         distance = ((x + z) / 2) - 320
         pos = ((x + z) / 2)
+
+        if 610 < x <= 620:
+            pos = 0
+
         # print(f"Position of the center of the image: {pos}")
 
         return pos

@@ -43,7 +43,7 @@ class QLearnAgent:
             if reward == -100:  # or self._env.getcollision:
                 # print(self._env.getcollision)
                 done = True
-                # print(f"Reward: {reward}, state: {new_state}, done: {done}, position of the center: {pos}")
+                print(f"Reward: {reward}, state: {new_state}, done: {done}, position of the center: {pos}")
 
             return new_state, reward, done, info
 
