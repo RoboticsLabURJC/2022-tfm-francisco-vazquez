@@ -42,6 +42,7 @@ def main():
 
     for i in range(1, 10000, 1):
         state = agent.reset()
+        time.sleep(1)
 
         epochs, penalties, reward = 0, 0, 0
         done = False
