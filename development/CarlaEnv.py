@@ -108,33 +108,35 @@ class CarlaEnv:
 
         mask = cv2.inRange(hsv_frame, self._lowthresholds, self._highthresholds)
 
-        x = 620
-        while x > 0:
-            if mask[100][x] == 255:
-                break
-            x -= 1
+        positions = []
 
-        z = x
-        while z > 0:
-            if mask[100][z] != 255:
-                break
-            z -= 1
+        for y in [100, 110, 120]:
+            x = 620
+            while x > 0:
+                if mask[y][x] == 255:
+                    break
+                x -= 1
+
+            z = x
+            while z > 0:
+                if mask[y][z] != 255:
+                    break
+                z -= 1
+
+            pos = ((x + z) / 2)
+            if 610 < x <= 620:
+                pos = 0
+
+            positions.append(pos)
 
         '''cv2.circle(mask, (x, 100), 5, (0, 255, 0), -1)
         cv2.circle(mask, (z, 100), 5, (0, 255, 0), -1)
         cv2.imshow("mask", mask)
         cv2.waitKey(1)'''
 
-        # Calc distance from center of the image to center of the lane
-        distance = ((x + z) / 2) - 320
-        pos = ((x + z) / 2)
-
-        if 610 < x <= 620:
-            pos = 0
-
         # print(f"Position of the center of the image: {pos}")
 
-        return pos
+        return positions
 
     def reset(self):
         if len(self._actors) > 0:
