@@ -38,7 +38,7 @@ def main():
 
     alpha = 0.8
     gamma = 0.9
-    epsilon = 0.99
+    epsilon = 0.9999
 
     for i in range(1, 10000, 1):
         state = agent.reset()
@@ -53,22 +53,23 @@ def main():
                 exit(0)'''
             if random.uniform(0, 1) < epsilon:
                 action = agent.get_action()
-                epsilon *= 0.998
+                epsilon *= 0.9999
             else:
-                action = np.argmax(agent.Q_table[state])
+                action = max(agent.Q_table[state])
 
             next_state, reward, done, info = agent.step(action)
 
-            old_value = agent.Q_table[state, action]
-            next_max = np.max(agent.Q_table[next_state])
+            old_value = agent.Q_table[state][action]
+            aux = agent.Q_table[next_state].values()
+            next_max = max(aux)
 
             new_value = (1 - alpha) * old_value + alpha * (reward + gamma * next_max)
-            agent.Q_table[state, action] = new_value
+            agent.Q_table[state][action] = new_value
 
             state = next_state
             epochs += 1
 
-        print(f"Episode: {i}, elpsilon: {epsilon}")
+        print(f"Episode: {i}, epsilon: {epsilon}")
 
     environment.destroy_all_actors()
 

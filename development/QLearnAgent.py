@@ -7,7 +7,7 @@ import numpy as np
 class QLearnAgent:
     def __init__(self, env):
         self._env = env
-        self.state = [0] * 3
+        self.state = (0, 0, 0)
         self._actions = [0, 1, 2]
         self.Q_table = {} # np.zeros([17**3, 3])
 
@@ -15,14 +15,18 @@ class QLearnAgent:
             for j in range(17):
                 for k in range(17):
                     aux = (i, j, k)
-                    action_reward = (0, 0, 0)
+                    action_reward = {}
+                    for a in range(3):
+                        action_reward[a] = 0
                     self.Q_table[aux] = action_reward
 
     def new_state(self, line_centers):
+        aux = [0] * 3
         for p in range(len(line_centers)):
             for i in range(17):
                 if 38 * i <= line_centers[p] < 38 * (i + 1):
-                    self.state[p] = i
+                    aux[p] = i
+                    self.state = tuple(aux)
 
         '''to_print = 0
         for i in range(-8, 9):
@@ -47,7 +51,7 @@ class QLearnAgent:
             if reward == -100:  # or self._env.getcollision:
                 # print(self._env.getcollision)
                 done = True
-                print(f"Reward: {reward}, state: {new_state}, done: {done}, position of the center: {pos}")
+                print(f"Reward: {reward}, state: {new_state}, done: {done}, position of the center: {positions}")
 
             return new_state, reward, done, info
 

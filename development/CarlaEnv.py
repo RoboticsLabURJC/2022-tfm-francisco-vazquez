@@ -26,9 +26,9 @@ class CarlaEnv:
         if action == 0:
             self._vehicle.apply_control(carla.VehicleControl(throttle=0.5, steer=0))
         elif action == 1:
-            self._vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=0.2))
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=0.15))
         elif action == 2:
-            self._vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=-0.2))
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=-0.15))
 
     def spawn_vehicle(self, model: carla.BlueprintLibrary, camera=None, collision_detector=None):
         # spawn_point = carla.Transform(carla.Location(x=41.389999, y=275.029999, z=0.500000),
