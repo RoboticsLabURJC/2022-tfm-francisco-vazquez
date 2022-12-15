@@ -1,3 +1,6 @@
+import random
+import time
+
 import carla
 import cv2
 import numpy as np
@@ -24,11 +27,11 @@ class CarlaEnv:
 
     def control(self, action):
         if action == 0:
-            self._vehicle.apply_control(carla.VehicleControl(throttle=0.5, steer=0))
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.5, steer=0.0))
         elif action == 1:
-            self._vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=0.15))
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=0.4))
         elif action == 2:
-            self._vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=-0.15))
+            self._vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=-0.4))
 
     def spawn_vehicle(self, model: carla.BlueprintLibrary, camera=None, collision_detector=None):
         # spawn_point = carla.Transform(carla.Location(x=41.389999, y=275.029999, z=0.500000),
@@ -37,15 +40,24 @@ class CarlaEnv:
         '''spawn_point = carla.Transform(carla.Location(x=71.965233, y=-10, z=0.300000),
                                       carla.Rotation(pitch=0.000000, yaw=-60.0, roll=0.000000))'''
 
-        spawn_point = carla.Transform(carla.Location(x=71.7, y=-10, z=0.300000),
-                                      carla.Rotation(pitch=0.000000, yaw=-62.5, roll=0.000000))
+        spawn_points = [carla.Transform(carla.Location(x=71.7, y=-10, z=0.300000), carla.Rotation(pitch=0.000000, yaw=-62.5, roll=0.000000)),
+                        carla.Transform(carla.Location(x=71.0, y=-36.0, z=2.0), carla.Rotation(pitch=0.0, yaw=-120.00, roll=0.0))]
+
+        # nueva posicion carla.Transform(carla.Location(x=61.526302, y=-48.077156, z=3.078438), carla.Rotation(pitch=0.0, yaw=-70.5, roll=0.0)),
+
 
         '''for Location in self.world.get_map().get_spawn_points():
             print(Location)'''
 
         # print(f"Vehicle spawned at {spawn_point}")
 
-        self._vehicle = self.world.spawn_actor(model, spawn_point)
+        self._vehicle = self.world.spawn_actor(model, spawn_points[0])
+
+        self._vehicle.apply_control(carla.VehicleControl(manual_gear_shift=True, gear=1))
+        self._vehicle.apply_control(carla.VehicleControl(throttle=0.4))
+        time.sleep(1)
+        self._vehicle.apply_control(carla.VehicleControl(manual_gear_shift=False))
+
         self._actors.append(self._vehicle)
 
         transform = carla.Transform(carla.Location(x=2.5, z=0.7))
@@ -139,9 +151,11 @@ class CarlaEnv:
         return positions
 
     def reset(self):
+        print(self._vehicle.get_transform())
         if len(self._actors) > 0:
             self.destroy_all_actors()
 
+        time.sleep(0.5)
         blueprint_library: carla.BlueprintLibrary = self.get_blueprint_library()
         model = blueprint_library.filter("model3")[0]
         cam = blueprint_library.find("sensor.camera.rgb")

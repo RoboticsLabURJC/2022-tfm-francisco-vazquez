@@ -1,4 +1,6 @@
 import random
+import time
+
 import carla
 import cv2
 import numpy as np
@@ -16,7 +18,7 @@ class QLearnAgent:
                 for k in range(17):
                     aux = (i, j, k)
                     action_reward = {}
-                    for a in range(3):
+                    for a in range(len(self._actions)):
                         action_reward[a] = 0
                     self.Q_table[aux] = action_reward
 
@@ -44,11 +46,11 @@ class QLearnAgent:
             self._env.control(action)
             positions = self._env.calc_center()
             new_state = self.new_state(positions)
-            reward = self.reward()
+            reward = self.reward(positions)
             done = False
             info = None
 
-            if reward == -100:  # or self._env.getcollision:
+            if reward == 1e-3:  # or self._env.getcollision:
                 # print(self._env.getcollision)
                 done = True
                 print(f"Reward: {reward}, state: {new_state}, done: {done}, position of the center: {positions}")
@@ -57,25 +59,42 @@ class QLearnAgent:
 
     def reset(self):
         self._env.reset()
+        time.sleep(1)
         pos = self._env.calc_center()
         new_state = self.new_state(pos)
         return new_state
 
-    def reward(self):
-        reward = 0
-        for state in self.state:
-            if 7 <= state <= 9:
-                reward += 10
+    def reward(self, positions):
+        rewards = []
 
-            elif state in [5, 6, 10, 11]:
-                reward += 2
+        marker_1 = 0.1 * 640
+        marker_2 = 0.2 * 640
+        marker_3 = 0.3 * 640
 
-            elif state in [2, 3, 4, 12, 13, 14]:
-                reward += 1
-
+        for p in positions:
+            distance = abs(320 - p)
+            if distance <= marker_1:
+                reward = 1
+            elif distance <= marker_2:
+                reward = 0.5
+            elif distance <= marker_3:
+                reward = 0.1
             else:
-                return -100
+                reward = 1e-3
+
+            rewards.append(reward)
+
+        reward = 0.5 * rewards[0] + 0.3 * rewards[1] + 0.2 * rewards[2]
         return reward
 
     def get_action(self):
         return random.choice(self._actions)
+
+
+
+
+
+
+
+
+

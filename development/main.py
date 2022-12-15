@@ -42,10 +42,11 @@ def main():
 
     for i in range(1, 10000, 1):
         state = agent.reset()
-        time.sleep(1)
+        time.sleep(0.6)
 
         epochs, penalties, reward = 0, 0, 0
         done = False
+        print(f"Episode: {i}, epsilon: {epsilon}")
 
         while not done:
             '''if not environment.show_image():
@@ -53,11 +54,14 @@ def main():
                 exit(0)'''
             if random.uniform(0, 1) < epsilon:
                 action = agent.get_action()
-                epsilon *= 0.9999
+                epsilon *= 0.9998
             else:
-                action = max(agent.Q_table[state])
+                action = max(agent.Q_table[state], key=agent.Q_table[state].get)
 
             next_state, reward, done, info = agent.step(action)
+
+            print(f"Estado: {state}\n acciones: recompensas {agent.Q_table[state]}\n accion seleccionada: {action}\n reward: {reward}")
+            print()
 
             old_value = agent.Q_table[state][action]
             aux = agent.Q_table[next_state].values()
@@ -69,7 +73,7 @@ def main():
             state = next_state
             epochs += 1
 
-        print(f"Episode: {i}, epsilon: {epsilon}")
+        print("\n\n\n")
 
     environment.destroy_all_actors()
 
