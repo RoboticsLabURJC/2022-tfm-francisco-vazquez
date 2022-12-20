@@ -68,10 +68,11 @@ def main():
             next_max = max(aux)
 
             new_value = (1 - alpha) * old_value + alpha * (reward + gamma * next_max)
-            agent.Q_table[state][action] = new_value
+            agent.Q_table[state][action] = round(new_value, 5)
 
             state = next_state
             epochs += 1
+            time.sleep(0.2)
 
         print("\n\n\n")
 

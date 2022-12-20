@@ -67,24 +67,46 @@ class QLearnAgent:
     def reward(self, positions):
         rewards = []
 
-        marker_1 = 0.1 * 640
-        marker_2 = 0.2 * 640
-        marker_3 = 0.3 * 640
+        marker_1 = 0.01* 640
+        marker_2 = 0.03 * 640
+        marker_3 = 0.07 * 640
+        marker_4 = 0.15 * 640
+        marker_5 = 0.2 * 640
+        marker_6 = 0.23 * 640
+        marker_7 = 0.25 * 640
+        marker_8 = 0.27 * 640
+        marker_9 = 0.3 * 640
 
+        distances = []
         for p in positions:
             distance = abs(320 - p)
             if distance <= marker_1:
                 reward = 1
             elif distance <= marker_2:
-                reward = 0.5
+                reward = 0.9
             elif distance <= marker_3:
+                reward = 0.85
+            elif distance <= marker_4:
+                reward = 0.8
+            elif distance <= marker_5:
+                reward = 0.75
+            elif distance <= marker_6:
+                reward = 0.7
+            elif distance <= marker_7:
+                reward = 0.6
+            elif distance <= marker_8:
+                reward = 0.5
+            elif distance <= marker_9:
                 reward = 0.1
             else:
                 reward = 1e-3
 
+            distances.append(distance)
             rewards.append(reward)
 
         reward = 0.5 * rewards[0] + 0.3 * rewards[1] + 0.2 * rewards[2]
+        print(f"Distances: {distances}")
+        print(f"Reward: {reward}")
         return reward
 
     def get_action(self):
