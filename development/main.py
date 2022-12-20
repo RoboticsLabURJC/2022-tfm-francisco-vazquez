@@ -60,7 +60,7 @@ def main():
 
             next_state, reward, done, info = agent.step(action)
 
-            print(f"Estado: {state}\n acciones: recompensas {agent.Q_table[state]}\n accion seleccionada: {action}\n reward: {reward}")
+            print(f"Estado: {state}\n acciones: recompensas {agent.Q_table[state]}\n accion seleccionada: {action}\n reward: {reward}\n Estado resultante: {next_state}")
             print()
 
             old_value = agent.Q_table[state][action]

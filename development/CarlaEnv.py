@@ -140,11 +140,13 @@ class CarlaEnv:
                 pos = 0
 
             positions.append(pos)
+            cv2.circle(mask, (x, y), 5, (0, 255, 0), -1)
+            cv2.circle(mask, (z, y), 5, (0, 255, 0), -1)
 
         '''cv2.circle(mask, (x, 100), 5, (0, 255, 0), -1)
-        cv2.circle(mask, (z, 100), 5, (0, 255, 0), -1)
+        cv2.circle(mask, (z, 100), 5, (0, 255, 0), -1)'''
         cv2.imshow("mask", mask)
-        cv2.waitKey(1)'''
+        cv2.waitKey(1)
 
         # print(f"Position of the center of the image: {pos}")
 

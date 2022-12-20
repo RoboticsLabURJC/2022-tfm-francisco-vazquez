@@ -55,6 +55,7 @@ class QLearnAgent:
                 done = True
                 print(f"Reward: {reward}, state: {new_state}, done: {done}, position of the center: {positions}")
 
+            print(f"Positions: {positions}")
             return new_state, reward, done, info
 
     def reset(self):
@@ -67,46 +68,44 @@ class QLearnAgent:
     def reward(self, positions):
         rewards = []
 
-        marker_1 = 0.01* 640
-        marker_2 = 0.03 * 640
-        marker_3 = 0.07 * 640
-        marker_4 = 0.15 * 640
-        marker_5 = 0.2 * 640
-        marker_6 = 0.23 * 640
-        marker_7 = 0.25 * 640
-        marker_8 = 0.27 * 640
-        marker_9 = 0.3 * 640
 
         distances = []
         for p in positions:
             distance = abs(320 - p)
-            if distance <= marker_1:
+            if distance <= 0.0:
                 reward = 1
-            elif distance <= marker_2:
+            elif distance <= 5.0:
                 reward = 0.9
-            elif distance <= marker_3:
+            elif distance <= 7.5:
                 reward = 0.85
-            elif distance <= marker_4:
+            elif distance <= 12.5:
                 reward = 0.8
-            elif distance <= marker_5:
+            elif distance <= 15.0:
                 reward = 0.75
-            elif distance <= marker_6:
+            elif distance <= 22.5:
                 reward = 0.7
-            elif distance <= marker_7:
+            elif distance <= 30.0:
+                reward = 0.65
+            elif distance <= 35.0:
                 reward = 0.6
-            elif distance <= marker_8:
+            elif distance <= 40.0:
+                reward = 0.55
+            elif distance <= 45.0:
                 reward = 0.5
-            elif distance <= marker_9:
+            elif distance <= 50.0:
+                reward = 0.4
+            elif distance <= 55.0:
+                reward = 0.3
+            elif distance <= 60.0:
+                reward = 0.2
+            elif distance <= 65.0:
                 reward = 0.1
             else:
                 reward = 1e-3
 
-            distances.append(distance)
             rewards.append(reward)
 
         reward = 0.5 * rewards[0] + 0.3 * rewards[1] + 0.2 * rewards[2]
-        print(f"Distances: {distances}")
-        print(f"Reward: {reward}")
         return reward
 
     def get_action(self):
