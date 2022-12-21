@@ -72,7 +72,6 @@ def main():
 
             state = next_state
             epochs += 1
-            time.sleep(0.2)
 
         print("\n\n\n")
 

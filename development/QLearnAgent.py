@@ -50,7 +50,7 @@ class QLearnAgent:
             done = False
             info = None
 
-            if reward == 1e-3:  # or self._env.getcollision:
+            if reward == -100.0:  # or self._env.getcollision:
                 # print(self._env.getcollision)
                 done = True
                 print(f"Reward: {reward}, state: {new_state}, done: {done}, position of the center: {positions}")
@@ -66,7 +66,7 @@ class QLearnAgent:
         return new_state
 
     def reward(self, positions):
-        rewards = []
+        '''rewards = []
 
 
         distances = []
@@ -106,6 +106,27 @@ class QLearnAgent:
             rewards.append(reward)
 
         reward = 0.5 * rewards[0] + 0.3 * rewards[1] + 0.2 * rewards[2]
+        return reward'''
+
+        rewards = []
+
+        for state in self.state:
+            if 7 <= state <= 9:
+                reward = 10
+
+            elif state in [5, 6, 10, 11]:
+                reward = 2
+
+            elif state in [2, 3, 4, 12, 13, 14]:
+                reward = -10
+
+            else:
+                reward = -100
+
+            rewards.append(reward)
+
+        reward = 0.5 * rewards[0] + 0.3 * rewards[1] + 0.2 * rewards[2]
+
         return reward
 
     def get_action(self):
